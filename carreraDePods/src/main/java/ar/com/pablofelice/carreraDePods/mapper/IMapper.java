@@ -8,7 +8,8 @@ package ar.com.pablofelice.carreraDePods.mapper;
  *
  * @author Usuario
  */
-public interface IMapper <I, O> {
-    public O map(I in);
-    
+
+public interface IMapper<In, Out> {
+    Out mapToEntity(In dto);
+    In mapToDTO(Out entity);
 }

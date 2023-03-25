@@ -8,22 +8,26 @@ import ar.com.pablofelice.carreraDePods.persistence.entity.Antena;
 import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
 import org.springframework.stereotype.Component;
 
-/**
- *
- * @author Usuario
- */
 @Component
 public class AntenaInDTOToAntena implements IMapper<AntenaInDTO, Antena> {
 
     @Override
-    public Antena map(AntenaInDTO in) {
+    public Antena mapToEntity(AntenaInDTO dto) {
         Antena antena = new Antena();
-        antena.setName(in.getName());
-        antena.setPod(in.getPod());
-        antena.setDistance(in.getDistance());
-        antena.setMetrics(in.getMetrics());
+        antena.setName(dto.getName());
+        antena.setPod(dto.getPod());
+        antena.setDistance(dto.getDistance());
+        antena.setMetrics(dto.getMetrics());
         return antena;
     }
-   
-    
+
+    @Override
+    public AntenaInDTO mapToDTO(Antena entity) {
+        AntenaInDTO dto = new AntenaInDTO();
+        dto.setName(entity.getName());
+        dto.setPod(entity.getPod());
+        dto.setDistance(entity.getDistance());
+        dto.setMetrics(entity.getMetrics());
+        return dto;
+    }
 }
