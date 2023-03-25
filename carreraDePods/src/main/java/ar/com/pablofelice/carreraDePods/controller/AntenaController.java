@@ -26,6 +26,6 @@ public class AntenaController {
     public ResponseEntity<?> createAntenas(@RequestBody Map<String, List<AntenaInDTO>> body) {
         List<AntenaInDTO> antenas = body.get("antenas");
 
-        return antenaPositionCalculator.calculateAntenaPosition(antenas);
+        return antenaPositionCalculator.calcularPosicionAntena(antenas);
     }
 }

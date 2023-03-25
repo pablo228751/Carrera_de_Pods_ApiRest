@@ -14,60 +14,58 @@ import org.springframework.stereotype.Service;
  * @author Usuario
  */
 @Service
-public class AntenaPosicionService {
+public class AntenaPosicionService {private final ProcesarDatosService procesarDatosService;
 
-    private final ProcesarDatosService metricProcessor;
+public AntenaPosicionService(ProcesarDatosService procesarDatosService) {
+    this.procesarDatosService = procesarDatosService;
+}
 
-    public AntenaPosicionService(ProcesarDatosService metricProcessor) {
-        this.metricProcessor = metricProcessor;
-    }
+public ResponseEntity<?> calcularPosicionAntena(List<AntenaInDTO> antenas) {
 
-    public ResponseEntity<?> calculateAntenaPosition(List<AntenaInDTO> antenas) {
+    String nombrePod = "";
+    List<ProcesarDatosService.Metrica> metrics = new ArrayList<>();
 
-        String podName = "";
-        List<ProcesarDatosService.Metric> metrics = new ArrayList<>();
-
-        // Verificar si las métricas están vacías y agregar valores por defecto
-        for (AntenaInDTO antena : antenas) {
-            if (podName.equals("")) {
-                podName = antena.getPod();
-            }
-            List<String> antenaMetrics = antena.getMetrics();
-            antenaMetrics.replaceAll(metric -> metric == null || metric.isEmpty() ? "N/A" : metric);
-            for (int i = 0; i < antenaMetrics.size(); i++) {
-                String antenaMetric = antenaMetrics.get(i);
-                if (!antenaMetric.equals("N/A")) {
-                    if (metrics.size() <= i) {
-                        metrics.add(new ProcesarDatosService.Metric(antenaMetric, antena.getDistance()));
-                    } else if (metrics.get(i).getValue().equals("N/A")) {
-                        metrics.set(i, new ProcesarDatosService.Metric(antenaMetric, antena.getDistance()));
-                    }
+    // Verificar si las métricas están vacías y agregar valores por defecto
+    for (AntenaInDTO antena : antenas) {
+        if (nombrePod.equals("")) {
+            nombrePod = antena.getPod();
+        }
+        List<String> metricasAntena = antena.getMetrics();
+        metricasAntena.replaceAll(metrica -> metrica == null || metrica.isEmpty() ? "N/A" : metrica);
+        for (int i = 0; i < metricasAntena.size(); i++) {
+            String metricaAntena = metricasAntena.get(i);
+            if (!metricaAntena.equals("N/A")) {
+                if (metrics.size() <= i) {
+                    metrics.add(new ProcesarDatosService.Metrica(metricaAntena, antena.getDistance()));
+                } else if (metrics.get(i).getValor().equals("N/A")) {
+                    metrics.set(i, new ProcesarDatosService.Metrica(metricaAntena, antena.getDistance()));
                 }
             }
         }
-
-        // Comprobar si no hay antenas para calcular la posición
-        if (antenas.isEmpty()) {
-            return new ResponseEntity<>("No hay antenas para calcular la posición", HttpStatus.BAD_REQUEST);
-        }
-
-        Map<String, Object> position = new HashMap<>();
-        double totalDistance = antenas.stream().mapToDouble(AntenaInDTO::getDistance).sum();
-        position.put("distance", totalDistance);
-        position.put("distance_copy", totalDistance / antenas.size());
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("pod", podName);
-        response.put("position", position);
-
-        List<String> defaultMetrics = metricProcessor.getDefaultMetrics(metrics, antenas);
-        if (defaultMetrics == null) {
-            // Si no se encontró una métrica válida en la última antena, entonces no se pueden calcular las métricas.
-            // Devolver un mensaje de error.
-            return new ResponseEntity<>("No se puede calcular la métrica debido a la falta de información", HttpStatus.BAD_REQUEST);
-        }
-
-        response.put("metrics", String.join(",", defaultMetrics));
-        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    // Comprobar si no hay antenas para calcular la posición
+    if (antenas.isEmpty()) {
+        return new ResponseEntity<>("No se encontraron antenas para calcular la posición", HttpStatus.BAD_REQUEST);
+    }
+
+    Map<String, Object> posicion = new HashMap<>();
+    double distanciaTotal = antenas.stream().mapToDouble(AntenaInDTO::getDistance).sum();
+    posicion.put("distancia", distanciaTotal);
+    posicion.put("distancia_media", distanciaTotal / antenas.size());
+
+    Map<String, Object> response = new HashMap<>();
+    response.put("pod", nombrePod);
+    response.put("position", posicion);
+
+    List<String> metricasPorDefecto = procesarDatosService.getMetricasPorDefecto(metrics, antenas);
+    if (metricasPorDefecto == null) {
+        // Si no se encontró una métrica válida en la última antena, entonces no se pueden calcular las métricas.
+        // Devolver un mensaje de error.
+        return new ResponseEntity<>("No se puede calcular la métrica, falta de información", HttpStatus.BAD_REQUEST);
+    }
+
+    response.put("metrics", String.join(",", metricasPorDefecto));
+    return new ResponseEntity<>(response, HttpStatus.OK);
+}
 }
