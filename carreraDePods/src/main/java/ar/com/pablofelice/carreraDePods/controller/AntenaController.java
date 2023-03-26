@@ -1,6 +1,6 @@
 package ar.com.pablofelice.carreraDePods.controller;
 
-import ar.com.pablofelice.carreraDePods.service.AntenaPosicionService;
+import ar.com.pablofelice.carreraDePods.service.AntenaService;
 import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
 import ar.com.pablofelice.carreraDePods.utils.SwaggerConfig;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,10 +17,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RestController
 @RequestMapping("/podhealth/")
 public class AntenaController {
-    private final AntenaPosicionService antenaPositionCalculator;
+    private final AntenaService antenaPositionCalculator;
 
     @Autowired
-    public AntenaController(AntenaPosicionService antenaPositionCalculator) {
+    public AntenaController(AntenaService antenaPositionCalculator) {
         this.antenaPositionCalculator = antenaPositionCalculator;
     }
 
