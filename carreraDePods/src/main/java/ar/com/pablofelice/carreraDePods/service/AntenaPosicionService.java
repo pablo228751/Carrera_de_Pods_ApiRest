@@ -47,23 +47,35 @@ public class AntenaPosicionService {
     public ResponseEntity<?> calcularPosicionAntena(List<AntenaInDTO> antenas) {
         //logger.info("Paso1 ");
         String nombrePod = "";
-        List<ProcesarDatosService.Metrica> metrics = new ArrayList<>();
+        List<String> metricasFinales = antenas.get(0).getMetrics();
+        List<ProcesarDatosService.Metrica> metrics = new ArrayList<>();        
+        
 
-        // Verificar si el nombre estoa vacio y agregar (solo se aplicaria el primer elemento)
+        // Recorre la lista recibida desde el controlador, si el nombre estoa vacio lo asigna (solo se aplicaria al primer elemento)
         for (AntenaInDTO antena : antenas) {
             if (nombrePod.equals("")) {
                 nombrePod = antena.getPod();
             }
-            //AQUI debo corregir la lógica de metrics para completar la lista de métricas del objeto AntenaInDTO completando campos vacios con otras lecturas
-            List<String> metricasAntena = antena.getMetrics();
-            metricasAntena.replaceAll(metrica -> metrica == null || metrica.isEmpty() ? "N/A" : metrica);
-            for (int i = 0; i < metricasAntena.size(); i++) {
-                String metricaAntena = metricasAntena.get(i);
-                if (!metricaAntena.equals("N/A")) {
+            //Rellenar Métricas
+            for (int i = 0; i < metricasFinales.size(); i++) {
+                if (metricasFinales.get(i) == null || metricasFinales.get(i).isEmpty()) {
+                    for (AntenaInDTO otraAntena : antenas) {
+                        if (otraAntena.getMetrics().get(i) != null && !otraAntena.getMetrics().get(i).isEmpty()) {
+                            System.out.println("------------> Cambié el valor numero: "+ i + " Que era: "+antena.getMetrics().get(i)+ " Cadena analizada"+ antena.getMetrics().toString());
+                            System.out.println("------------> Por el VALOR numero: "+ i + " Que ES: "+otraAntena.getMetrics().get(i)+" LLeno de: "+ otraAntena.getMetrics().toString());                            
+                            metricasFinales.set(i, otraAntena.getMetrics().get(i));
+                            break;
+                        }
+                    }    
+
+                }
+                System.out.println("MetricasFinales va asi: "+metricasFinales);
+
+                if (!metricasFinales.get(i).equals("N/A")) {
                     if (metrics.size() <= i) {
-                        metrics.add(new ProcesarDatosService.Metrica(metricaAntena, antena.getDistance()));
+                        metrics.add(new ProcesarDatosService.Metrica(metricasFinales.get(i), antena.getDistance()));
                     } else if (metrics.get(i).getValor().equals("N/A")) {
-                        metrics.set(i, new ProcesarDatosService.Metrica(metricaAntena, antena.getDistance()));
+                        metrics.set(i, new ProcesarDatosService.Metrica(metricasFinales.get(i), antena.getDistance()));
                     }
                 }
             }
@@ -91,10 +103,10 @@ public class AntenaPosicionService {
             // Devolver un mensaje de error.
             return new ResponseEntity<>("No se puede calcular la métrica, falta de información", HttpStatus.BAD_REQUEST);
         }
-        
 
-            response.put("metrics", metricasPorDefecto);
-            antenaService.saveAntenas(antenas);
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        }
+        response.put("metrics", metricasPorDefecto);
+        antenaService.saveAntenas(antenas);
+        System.out.println("Ver Response = " + response.toString());
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
+}

@@ -19,7 +19,12 @@ public class AntenaInDTO {
         this.distance = distance;
         this.metrics = metrics;
     }
-
+    @Override
+public String toString() {
+    
+    String cadena= "name= " + name + "\n pod= " + pod + "\n distance= " + distance + "\n metrics" + metrics.toString();
+    return cadena;
+}
     public String getName() {
         return name;
     }
