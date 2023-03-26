@@ -5,9 +5,11 @@
 package ar.com.pablofelice.carreraDePods.service;
 
 import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,36 +20,46 @@ import org.springframework.stereotype.Service;
 public class ProcesarDatosService {
 
     public List<String> getMetricasPorDefecto(List<Metrica> metricas, List<AntenaInDTO> antenas) {
-        String[] metricasPorDefecto = {"N/A", "N/A", "N/A", "N/A"};
-        int i = 0;
-        for (Metrica metrica : metricas) {
-            if (metrica.getValor() == null || metrica.getValor().isEmpty()) {
-                if (i == antenas.size() - 1) {
-                    // Si no se encontró una métrica válida en la última antena, entonces no se pueden calcular las métricas.
-                    // Devolver un mensaje de error.
-                    return Arrays.asList(metricasPorDefecto);
-                }
-                AntenaInDTO siguienteAntena = antenas.get(i + 1);
+    List<String> metricasPorDefecto = new ArrayList<>(Arrays.asList("N/A", "N/A", "N/A", "N/A"));
+    int i = 0;
+    for (Metrica metrica : metricas) {
+        if (metrica.getValor() == null || metrica.getValor().isEmpty()) {
+            if (i == antenas.size() - 1) {
+                // Si no se encontró una métrica válida en la última antena, entonces no se pueden calcular las métricas.
+                // Devolver un mensaje de error.
+                return metricasPorDefecto;
+            }
+            for (int j = i + 1; j < antenas.size(); j++) {
+                AntenaInDTO siguienteAntena = antenas.get(j);
                 List<String> metricasSiguienteAntena = siguienteAntena.getMetrics();
-                for (String metricaSiguienteAntena : metricasSiguienteAntena) {
-                    if (!metricaSiguienteAntena.equals("N/A")) {
-                        metricasPorDefecto[i] = metricaSiguienteAntena;
+                for (int k = 0; k < metricasSiguienteAntena.size(); k++) {
+                    if (!metricasSiguienteAntena.get(k).equals("N/A") && !metricasPorDefecto.contains(metricasSiguienteAntena.get(k))) {
+                        metricasPorDefecto.set(i, metricasSiguienteAntena.get(k));
                         i++;
                         if (i == 4) {
                             break;
                         }
                     }
                 }
-            } else {
-                metricasPorDefecto[i] = metrica.getValor();
+                if (i == 4) {
+                    break;
+                }
+            }
+        } else {
+            if (!metricasPorDefecto.contains(metrica.getValor())) {
+                metricasPorDefecto.set(i, metrica.getValor());
                 i++;
             }
-            if (i == 4) {
-                break;
-            }
         }
-        return Arrays.asList(metricasPorDefecto);
+        if (i == 4) {
+            break;
+        }
     }
+    
+    
+    return metricasPorDefecto;
+}
+
 
     public static class Metrica {
 

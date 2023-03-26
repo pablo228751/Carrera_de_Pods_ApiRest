@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-
 @Service
 public class AntenaPosicionService {
 
@@ -50,11 +49,12 @@ public class AntenaPosicionService {
         String nombrePod = "";
         List<ProcesarDatosService.Metrica> metrics = new ArrayList<>();
 
-        // Verificar si las métricas están vacías y agregar valores por defecto
+        // Verificar si el nombre estoa vacio y agregar (solo se aplicaria el primer elemento)
         for (AntenaInDTO antena : antenas) {
             if (nombrePod.equals("")) {
                 nombrePod = antena.getPod();
             }
+            //AQUI debo corregir la lógica de metrics para completar la lista de métricas del objeto AntenaInDTO completando campos vacios con otras lecturas
             List<String> metricasAntena = antena.getMetrics();
             metricasAntena.replaceAll(metrica -> metrica == null || metrica.isEmpty() ? "N/A" : metrica);
             for (int i = 0; i < metricasAntena.size(); i++) {
@@ -84,14 +84,17 @@ public class AntenaPosicionService {
         response.put("position", posicion);
 
         List<String> metricasPorDefecto = procesarDatosService.getMetricasPorDefecto(metrics, antenas);
+        System.out.println("Métricas por defecto:");
+        System.out.println(metricasPorDefecto);
         if (metricasPorDefecto == null) {
             // Si no se encontró una métrica válida en la última antena, entonces no se pueden calcular las métricas.
             // Devolver un mensaje de error.
             return new ResponseEntity<>("No se puede calcular la métrica, falta de información", HttpStatus.BAD_REQUEST);
         }
+        
 
-        response.put("metrics", String.join(",", metricasPorDefecto));
-        antenaService.saveAntenas(antenas);
-        return new ResponseEntity<>(response, HttpStatus.OK);
+            response.put("metrics", metricasPorDefecto);
+            antenaService.saveAntenas(antenas);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
     }
-}
