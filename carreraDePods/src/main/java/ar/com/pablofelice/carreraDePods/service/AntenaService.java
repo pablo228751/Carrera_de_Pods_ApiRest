@@ -41,30 +41,10 @@ public class AntenaService {
     }
 
     public ResponseEntity<?> calcularPosicionAntena(List<AntenaInDTO> antenas) {
-        //logger.info("Paso1 ");
-        String nombrePod = "";
-        List<String> metricasFinales = antenas.get(0).getMetrics();
+        //Toma nombre del primer objeto
+        String nombrePod = antenas.get(0).getName();       
 
-        // Recorre la lista recibida desde el controlador, si el nombre estoa vacio lo asigna
-        for (AntenaInDTO antena : antenas) {
-            if (nombrePod.equals("")) {
-                nombrePod = antena.getPod();
-            }
-            //Completar Métricas Vacías
-            for (int i = 0; i < metricasFinales.size(); i++) {
-                if (metricasFinales.get(i) == null || metricasFinales.get(i).isEmpty()) {
-                    for (AntenaInDTO otraAntena : antenas) {
-                        if (otraAntena.getMetrics().get(i) != null && !otraAntena.getMetrics().get(i).isEmpty()) {
-                            System.out.println("------------> Cambié el valor numero: " + i + " Que era: " + antena.getMetrics().get(i) + " Cadena analizada" + antena.getMetrics().toString());
-                            System.out.println("------------> Por el VALOR numero: " + i + " Que ES: " + otraAntena.getMetrics().get(i) + " LLeno de: " + otraAntena.getMetrics().toString());
-                            metricasFinales.set(i, otraAntena.getMetrics().get(i));
-                            break;
-                        }
-                    }
-
-                }
-            }
-        }
+        
         System.out.println("************************** PROBANDO COORDENADAS ************************************");
         List<CrearAntena> ListaAntenas = new ArrayList<CrearAntena>();
         ListaAntenas.add(new CrearAntena("Antena1", -500, -200));
@@ -79,6 +59,8 @@ public class AntenaService {
         System.out.println("RESULTADO::::::::::::::");
         System.out.println(Arrays.toString(result));
         System.out.println("***************************        FIN                 *****************************");
+        
+        List<String> metricasFinales = coor.getMessage(antenas);
         //Si MetricaFinal quedó  Vacía devuelve Error 404
         for (int i = 0; i < metricasFinales.size(); i++) {
             if (metricasFinales.get(i) == null || metricasFinales.get(i).isEmpty()) {
