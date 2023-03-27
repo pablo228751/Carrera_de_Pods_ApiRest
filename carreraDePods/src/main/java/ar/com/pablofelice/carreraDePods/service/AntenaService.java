@@ -29,37 +29,39 @@ public class AntenaService {
         this.antenaMapper = antenaMapper;
     }
 
-    // método para guardar los datos de las antenas
+    // Guardar datos en la base
     public void saveAntenas(List<AntenaInDTO> antenaInDTOS) {
-
-        //logger.info("antenaInDTOS: " + antenaInDTOS);
         List<Antena> antenas = antenaInDTOS.stream()
                 .map(antenaMapper::mapToEntity)
                 .collect(Collectors.toList());
-        //logger.info("antenas: " + antenas);
         antenaRepository.saveAll(antenas);
     }
 
     public ResponseEntity<?> calcularPosicionAntena(List<AntenaInDTO> antenas) {
         //Toma nombre del primer objeto
-        String nombrePod = antenas.get(0).getName();       
+        String nombrePod = antenas.get(0).getPod();
 
-        
         System.out.println("************************** PROBANDO COORDENADAS ************************************");
         List<CrearAntena> ListaAntenas = new ArrayList<CrearAntena>();
         ListaAntenas.add(new CrearAntena("Antena1", -500, -200));
         ListaAntenas.add(new CrearAntena("Antena2", 100, -100));
         ListaAntenas.add(new CrearAntena("Antena3", 500, 100));
         List<DistanciaAntena> listaDistancias = new ArrayList<DistanciaAntena>();
+        for (AntenaInDTO antena : antenas) {
+            listaDistancias.add(new DistanciaAntena(antena.getName(), antena.getDistance().floatValue()));
+        }
+        /*
         listaDistancias.add(new DistanciaAntena("Antena1", 210.0f));
         listaDistancias.add(new DistanciaAntena("Antena2", 225.5f));
         listaDistancias.add(new DistanciaAntena("Antena3", 252.7f));
-        MessageLocationService coor = new MessageLocationService(ListaAntenas);
-        float[] result=coor.getLocation(listaDistancias);
-        System.out.println("RESULTADO::::::::::::::");
-        System.out.println(Arrays.toString(result));
-        System.out.println("***************************        FIN                 *****************************");
         
+         */
+        MessageLocationService coor = new MessageLocationService(ListaAntenas);
+        float[] resultX_Y = coor.getLocation(listaDistancias);
+        System.out.println("RESULTADO::::::::::::::");
+        System.out.println(Arrays.toString(resultX_Y));
+        System.out.println("***************************        FIN                 *****************************");
+
         List<String> metricasFinales = coor.getMessage(antenas);
         //Si MetricaFinal quedó  Vacía devuelve Error 404
         for (int i = 0; i < metricasFinales.size(); i++) {
@@ -69,14 +71,12 @@ public class AntenaService {
         }
 
         Map<String, Object> posicion = new HashMap<>();
-        double distanciaTotal = antenas.stream().mapToDouble(AntenaInDTO::getDistance).sum();
-        posicion.put("distancia", distanciaTotal);
-        posicion.put("distancia_media", distanciaTotal / antenas.size());
+        posicion.put("x", resultX_Y[0]);
+        posicion.put("y", resultX_Y[1]);
 
         Map<String, Object> response = new HashMap<>();
         response.put("pod", nombrePod);
         response.put("position", posicion);
-
         response.put("metrics", metricasFinales);
         this.saveAntenas(antenas);
         System.out.println("Ver Response = " + response.toString());

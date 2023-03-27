@@ -13,7 +13,6 @@ public class MessageLocationService {
     Se crean X cantidad de objetos antenas, según recibe el Contructor,
     luego,se crea una Lista de distancias con tamaño <objetos antenas.size()>.
      */
-
     private List<CrearAntena> antena;
     float[] coordenadas = new float[2];
     private final int cantAntenas;
@@ -24,7 +23,7 @@ public class MessageLocationService {
     }
 
     public float[] getLocation(List<DistanciaAntena> distanciaAntena) {
-        if (distanciaAntena.size() != cantAntenas) {
+        if (distanciaAntena.size() < cantAntenas) {
             System.out.println("Datos insuficioentes");
             return null;
         }
@@ -39,7 +38,10 @@ public class MessageLocationService {
                 - 2 * (antena.get(2).getCoordenadas()[1] - antena.get(0).getCoordenadas()[1]) * x)
                 / (2 * (antena.get(2).getCoordenadas()[1] - antena.get(0).getCoordenadas()[1])));
 
-        System.out.printf("***MessageLocationService**** Dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", x, y);
+        x = Math.round(x * 100.0f) / 100.0f; // Redondear a dos decimales
+        y = Math.round(y * 100.0f) / 100.0f;
+
+        System.out.format("***MessageLocationService**** Dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", x, y);
         coordenadas[0] = x;
         coordenadas[1] = y;
 
@@ -60,7 +62,6 @@ public class MessageLocationService {
                             break;
                         }
                     }
-
                 }
             }
         }
