@@ -46,6 +46,7 @@ public class AntenaService {
         ListaAntenas.add(new CrearAntena("Antena1", -500, -200));
         ListaAntenas.add(new CrearAntena("Antena2", 100, -100));
         ListaAntenas.add(new CrearAntena("Antena3", 500, 100));
+        //ListaAntenas.add(new CrearAntena("Antena4", 800, 100));
         List<DistanciaAntena> listaDistancias = new ArrayList<DistanciaAntena>();
         for (AntenaInDTO antena : antenas) {
             listaDistancias.add(new DistanciaAntena(antena.getName(), antena.getDistance().floatValue()));
@@ -57,9 +58,10 @@ public class AntenaService {
         
          */
         MessageLocationService coor = new MessageLocationService(ListaAntenas);
-        float[] resultX_Y = coor.getLocation(listaDistancias);
-        System.out.println("RESULTADO::::::::::::::");
-        System.out.println(Arrays.toString(resultX_Y));
+        float[] resultX_Y = coor.getLocation2(listaDistancias);
+        if (resultX_Y == null) {
+            return new ResponseEntity<>("RESPONSE CODE: 404 (Datos insuficientes)", HttpStatus.NOT_FOUND);
+        }
         System.out.println("***************************        FIN                 *****************************");
 
         List<String> metricasFinales = coor.getMessage(antenas);
@@ -77,9 +79,12 @@ public class AntenaService {
         Map<String, Object> response = new HashMap<>();
         response.put("pod", nombrePod);
         response.put("position", posicion);
-        response.put("metrics", metricasFinales);
+        //Response en formato String
+        String metricsString = String.join(",", metricasFinales);
+        response.put("metrics", metricsString);
+        //Response como Array
+        //response.put("metrics", metricasFinales);
         this.saveAntenas(antenas);
-        System.out.println("Ver Response = " + response.toString());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
