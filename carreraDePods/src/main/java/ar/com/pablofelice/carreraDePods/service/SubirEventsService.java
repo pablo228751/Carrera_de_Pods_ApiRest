@@ -4,7 +4,6 @@
  */
 package ar.com.pablofelice.carreraDePods.service;
 
-
 import ar.com.pablofelice.carreraDePods.events.AntenaCreatedEvent;
 import ar.com.pablofelice.carreraDePods.events.Event;
 import ar.com.pablofelice.carreraDePods.persistence.entity.Antena;
@@ -17,36 +16,30 @@ import java.util.UUID;
 import org.springframework.kafka.core.ProducerFactory;
 
 @Component
-public class AntenaEventsService {
+public class SubirEventsService {
+
     /*
    @Autowired
 	private KafkaTemplate<String, Event<?>> producer;
-*/
-   
-    
+     */
+
     private KafkaTemplate<String, Event<?>> producer;
- 
-   public AntenaEventsService(ProducerFactory<String, Event<?>> producer) {
-      this.producer = new KafkaTemplate<>(producer);
-         }
-  
-	
-	@Value("${topic.antena.name:antena}")
-	private String topicAntena;
-	
-	public void publish(List<Antena> antenas) {
-                AntenaCreatedEvent enviarAKafka = new AntenaCreatedEvent();
-		enviarAKafka.setData(antenas);
-		enviarAKafka.setId(UUID.randomUUID().toString());
-		enviarAKafka.setDate(new Date());
 
-		this.producer.send(topicAntena, enviarAKafka);
-
-		
-	}
+    public SubirEventsService(ProducerFactory<String, Event<?>> producer) {
+        this.producer = new KafkaTemplate<>(producer);
+    }
     
+    @Value("${topic.podhealth.name:podhealth}")
+    private String topicPodHealth;
 
-	
-	
+    public void subirPodHealth(List<Antena> antenas) {
+        AntenaCreatedEvent enviarAKafka = new AntenaCreatedEvent();
+        enviarAKafka.setData(antenas);
+        enviarAKafka.setId(UUID.randomUUID().toString());
+        enviarAKafka.setDate(new Date());
+
+        this.producer.send(topicPodHealth, enviarAKafka);
+
+    }
 
 }

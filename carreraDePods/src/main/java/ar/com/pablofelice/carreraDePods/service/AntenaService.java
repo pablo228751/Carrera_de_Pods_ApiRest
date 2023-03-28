@@ -21,11 +21,11 @@ public class AntenaService {
 
     private final AntenaRepository antenaRepository;
     private final IMapper<AntenaInDTO, Antena> antenaMapper;
-    private final AntenaEventsService antenaEventsService;
+    private final SubirEventsService antenaEventsService;
     
     // Constructor que toma todos los parámetros
     @Autowired
-    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, AntenaEventsService antenaEventsService) {
+    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, SubirEventsService antenaEventsService) {
         this.antenaRepository = antenaRepository;
         this.antenaMapper = antenaMapper;
         this.antenaEventsService = antenaEventsService;
@@ -39,19 +39,9 @@ public class AntenaService {
                 .collect(Collectors.toList());
         antenaRepository.saveAll(antenas);
     }
-
-    //Apache Kafka
-    public List<Antena> saveKafka(List<AntenaInDTO> antenaInDTOS) {
-        List<Antena> antenas = antenaInDTOS.stream()
-                .map(antenaMapper::mapToEntity)
-                .collect(Collectors.toList());
-        System.out.println("saveKafka dice: Recibido " + antenas);
-        this.antenaEventsService.publish(antenas);
-        return antenas;
-    }
     
 
-    public ResponseEntity<?> calcularPosicionAntena(List<AntenaInDTO> antenas) {
+    public ResponseEntity<?> datosAntena(List<AntenaInDTO> antenas) {
         //Toma nombre del primer objeto
         String nombrePod = antenas.get(0).getPod();
 
@@ -93,7 +83,6 @@ public class AntenaService {
         //Response como Array
         //response.put("metrics", metricasFinales);
         
-        this.saveKafka(antenas);
         this.saveDB(antenas);        
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
