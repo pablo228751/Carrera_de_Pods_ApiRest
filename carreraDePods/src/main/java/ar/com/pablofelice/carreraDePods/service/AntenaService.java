@@ -7,7 +7,6 @@ import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
 import ar.com.pablofelice.carreraDePods.utils.CrearAntena;
 import ar.com.pablofelice.carreraDePods.utils.DistanciaAntena;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,26 +21,41 @@ public class AntenaService {
 
     private final AntenaRepository antenaRepository;
     private final IMapper<AntenaInDTO, Antena> antenaMapper;
-
+    private final AntenaEventsService antenaEventsService;
+    
+    // Constructor que toma todos los parámetros
     @Autowired
-    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper) {
+    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, AntenaEventsService antenaEventsService) {
         this.antenaRepository = antenaRepository;
         this.antenaMapper = antenaMapper;
-    }
+        this.antenaEventsService = antenaEventsService;
+    }   
+    
 
     // Guardar datos en la base
-    public void saveAntenas(List<AntenaInDTO> antenaInDTOS) {
+    public void saveDB(List<AntenaInDTO> antenaInDTOS) {
         List<Antena> antenas = antenaInDTOS.stream()
                 .map(antenaMapper::mapToEntity)
                 .collect(Collectors.toList());
         antenaRepository.saveAll(antenas);
     }
 
+    //Apache Kafka
+    public List<Antena> saveKafka(List<AntenaInDTO> antenaInDTOS) {
+        List<Antena> antenas = antenaInDTOS.stream()
+                .map(antenaMapper::mapToEntity)
+                .collect(Collectors.toList());
+        System.out.println("saveKafka dice: Recibido " + antenas);
+        this.antenaEventsService.publish(antenas);
+        return antenas;
+    }
+    
+
     public ResponseEntity<?> calcularPosicionAntena(List<AntenaInDTO> antenas) {
         //Toma nombre del primer objeto
         String nombrePod = antenas.get(0).getPod();
 
-        System.out.println("************************** PROBANDO COORDENADAS ************************************");
+        //System.out.println("************************** PROBANDO COORDENADAS ************************************");
         List<CrearAntena> ListaAntenas = new ArrayList<CrearAntena>();
         ListaAntenas.add(new CrearAntena("Antena1", -500, -200));
         ListaAntenas.add(new CrearAntena("Antena2", 100, -100));
@@ -51,18 +65,12 @@ public class AntenaService {
         for (AntenaInDTO antena : antenas) {
             listaDistancias.add(new DistanciaAntena(antena.getName(), antena.getDistance().floatValue()));
         }
-        /*
-        listaDistancias.add(new DistanciaAntena("Antena1", 210.0f));
-        listaDistancias.add(new DistanciaAntena("Antena2", 225.5f));
-        listaDistancias.add(new DistanciaAntena("Antena3", 252.7f));
-        
-         */
         MessageLocationService coor = new MessageLocationService(ListaAntenas);
         float[] resultX_Y = coor.getLocation2(listaDistancias);
         if (resultX_Y == null) {
             return new ResponseEntity<>("RESPONSE CODE: 404 (Datos insuficientes)", HttpStatus.NOT_FOUND);
         }
-        System.out.println("***************************        FIN                 *****************************");
+        //System.out.println("***************************        FIN                 *****************************");
 
         List<String> metricasFinales = coor.getMessage(antenas);
         //Si MetricaFinal quedó  Vacía devuelve Error 404
@@ -84,7 +92,9 @@ public class AntenaService {
         response.put("metrics", metricsString);
         //Response como Array
         //response.put("metrics", metricasFinales);
-        this.saveAntenas(antenas);
+        
+        this.saveKafka(antenas);
+        this.saveDB(antenas);        
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

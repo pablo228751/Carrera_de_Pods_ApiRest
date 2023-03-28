@@ -24,7 +24,7 @@ public class MessageLocationService {
 
     public float[] getLocation(List<DistanciaAntena> distanciaAntena) {
         if (distanciaAntena.size() < cantAntenas) {
-            System.out.println("Datos insuficioentes");
+            //System.out.println("Datos insuficioentes");
             return null;
         }
 
@@ -46,7 +46,7 @@ public class MessageLocationService {
         x = Math.round(x * 100.0f) / 100.0f; // Redondear a dos decimales
         y = Math.round(y * 100.0f) / 100.0f;
 
-        System.out.format("***MessageLocationService**** getLocation dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", x, y);
+        //System.out.format("***MessageLocationService**** getLocation dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", x, y);
         this.coordenadas[0] = x;
         this.coordenadas[1] = y;
 
@@ -55,7 +55,7 @@ public class MessageLocationService {
 
     public float[] getLocation2(List<DistanciaAntena> distanciaAntena) {
         if (distanciaAntena.size() < cantAntenas) {
-            System.out.println("Datos insuficientes");
+            //System.out.println("Datos insuficientes");
             return null;
         }
 
@@ -83,8 +83,7 @@ public class MessageLocationService {
 
         this.coordenadas[0] = Math.round(sumX / sumD * 100.0f) / 100.0f;
         this.coordenadas[1] = Math.round(sumY / sumD * 100.0f) / 100.0f;
-
-        System.out.format("***MessageLocationService**** getLocation2 dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", this.coordenadas[0], this.coordenadas[1]);
+        //System.out.format("***MessageLocationService**** getLocation2 dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", this.coordenadas[0], this.coordenadas[1]);
 
         return this.coordenadas;
     }
