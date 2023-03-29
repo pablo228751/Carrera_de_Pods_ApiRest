@@ -1,7 +1,7 @@
 package ar.com.pablofelice.carreraDePods.controller;
 
-import ar.com.pablofelice.carreraDePods.events.Event;
 import ar.com.pablofelice.carreraDePods.service.GetEventsService;
+import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PodSplitGetController {
 
     private final GetEventsService getEventsService;
-    private String tp ="podhealth";
 
     @Autowired
     public PodSplitGetController(GetEventsService getEventsService) {
@@ -25,7 +24,8 @@ public class PodSplitGetController {
     @GetMapping("/{antena_name}")
     public ResponseEntity<String> getPodHealthSplit(@PathVariable("antena_name") String antenaName) {
         System.out.println("Antena seleccionada: " + antenaName);
-        List<Event<?>> events = getEventsService.getTopic(tp);
+        List<AntenaInDTO> events = getEventsService.getNombrePod(antenaName);
+        
         System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% INICIO %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
         System.out.println(events.toString());
         System.out.println("%%%%%%%%%%%%%%%%%%%%%%%% FIN %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
