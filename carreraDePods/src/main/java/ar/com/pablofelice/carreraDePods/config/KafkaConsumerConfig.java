@@ -27,12 +27,6 @@ public class KafkaConsumerConfig {
 
     @Bean
     @PostMapping
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(
-            description = "Ejemplo de cuerpo de solicitud",
-            required = true,
-            content = @Content(mediaType = "application/json",
-                    examples = @ExampleObject(value = SwaggerConfig.ejemploBodyPodhealth, name = "ejemplo"))
-    )
     public ConsumerFactory<String, Event<?>> consumerFactory() {
         Map<String, String> props = new HashMap<>();
         props.put(

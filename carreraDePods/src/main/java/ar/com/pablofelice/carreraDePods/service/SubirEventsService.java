@@ -6,7 +6,7 @@ package ar.com.pablofelice.carreraDePods.service;
 
 import ar.com.pablofelice.carreraDePods.events.AntenaCreatedEvent;
 import ar.com.pablofelice.carreraDePods.events.Event;
-import ar.com.pablofelice.carreraDePods.persistence.entity.Antena;
+import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
@@ -18,11 +18,6 @@ import org.springframework.kafka.core.ProducerFactory;
 @Component
 public class SubirEventsService {
 
-    /*
-   @Autowired
-	private KafkaTemplate<String, Event<?>> producer;
-     */
-
     private KafkaTemplate<String, Event<?>> producer;
 
     public SubirEventsService(ProducerFactory<String, Event<?>> producer) {
@@ -32,7 +27,7 @@ public class SubirEventsService {
     @Value("${topic.podhealth.name:podhealth}")
     private String topicPodHealth;
 
-    public void subirPodHealth(List<Antena> antenas) {
+    public void subirPodHealth(List<AntenaInDTO> antenas) {
         AntenaCreatedEvent enviarAKafka = new AntenaCreatedEvent();
         enviarAKafka.setData(antenas);
         enviarAKafka.setId(UUID.randomUUID().toString());

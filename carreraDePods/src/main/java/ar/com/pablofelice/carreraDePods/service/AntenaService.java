@@ -21,14 +21,15 @@ public class AntenaService {
 
     private final AntenaRepository antenaRepository;
     private final IMapper<AntenaInDTO, Antena> antenaMapper;
-    private final SubirEventsService antenaEventsService;
+    private final SubirEventsService subirEventsService;
     
     // Constructor que toma todos los parámetros
     @Autowired
-    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, SubirEventsService antenaEventsService) {
+    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, SubirEventsService subirEventsService) {
         this.antenaRepository = antenaRepository;
         this.antenaMapper = antenaMapper;
-        this.antenaEventsService = antenaEventsService;
+        this.subirEventsService = subirEventsService;
+        
     }   
     
 
@@ -84,6 +85,7 @@ public class AntenaService {
         //response.put("metrics", metricasFinales);
         
         this.saveDB(antenas);        
+        this.subirEventsService.subirPodHealth(antenas);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

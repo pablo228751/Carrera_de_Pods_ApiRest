@@ -5,13 +5,13 @@
 package ar.com.pablofelice.carreraDePods.events;
 
 
-import ar.com.pablofelice.carreraDePods.persistence.entity.Antena;
+import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
 import java.util.List;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AntenaCreatedEvent extends Event<List<Antena>> {
+public class AntenaCreatedEvent extends Event<List<AntenaInDTO>> {
 
 }
