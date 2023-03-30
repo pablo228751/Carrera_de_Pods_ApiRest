@@ -22,28 +22,21 @@ public class AntenaService {
     private final AntenaRepository antenaRepository;
     private final IMapper<AntenaInDTO, Antena> antenaMapper;
     private final SubirEventsService subirEventsService;
-    
-    // Constructor que toma todos los parámetros
     @Autowired
     public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, SubirEventsService subirEventsService) {
         this.antenaRepository = antenaRepository;
         this.antenaMapper = antenaMapper;
-        this.subirEventsService = subirEventsService;
-        
-    }   
-    
-
+        this.subirEventsService = subirEventsService;        
+    }  
     // Guardar datos en la base
     public void saveDB(List<AntenaInDTO> antenaInDTOS) {
         List<Antena> antenas = antenaInDTOS.stream()
                 .map(antenaMapper::mapToEntity)
                 .collect(Collectors.toList());
         antenaRepository.saveAll(antenas);
-    }
-    
+    }   
 
     public ResponseEntity<?> datosAntena(List<AntenaInDTO> antenas) {
-        //Toma nombre del primer objeto
         String nombrePod = antenas.get(0).getPod();
 
         //System.out.println("************************** PROBANDO COORDENADAS ************************************");
