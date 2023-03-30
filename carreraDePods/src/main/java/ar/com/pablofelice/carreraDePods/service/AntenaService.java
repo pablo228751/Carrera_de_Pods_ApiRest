@@ -48,9 +48,13 @@ public class AntenaService {
 
         //System.out.println("************************** PROBANDO COORDENADAS ************************************");
         List<CrearAntena> ListaAntenas = new ArrayList<CrearAntena>();
-        ListaAntenas.add(new CrearAntena("Antena1", -500, -200));
-        ListaAntenas.add(new CrearAntena("Antena2", 100, -100));
-        ListaAntenas.add(new CrearAntena("Antena3", 500, 100));
+        ListaAntenas.add(new CrearAntena("antena0", -500, -200));
+        ListaAntenas.add(new CrearAntena("antena1", 100, -100));
+        ListaAntenas.add(new CrearAntena("antena2", 500, 100));
+        //Devinir en la variable statica la cantidad de antenas
+        CrearAntena.cantDeAntenasDisponibles=ListaAntenas.size();
+        CrearAntena.setListaDeNombres(ListaAntenas);
+        System.out.println("CrearAntena.cantDeAntenasDisponibles = " + CrearAntena.cantDeAntenasDisponibles);
         //ListaAntenas.add(new CrearAntena("Antena4", 800, 100));
         List<DistanciaAntena> listaDistancias = new ArrayList<DistanciaAntena>();
         for (AntenaInDTO antena : antenas) {

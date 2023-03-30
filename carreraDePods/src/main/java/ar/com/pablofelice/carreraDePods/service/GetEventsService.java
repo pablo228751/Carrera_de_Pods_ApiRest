@@ -3,6 +3,7 @@ package ar.com.pablofelice.carreraDePods.service;
 import ar.com.pablofelice.carreraDePods.events.AntenaCreatedEvent;
 import ar.com.pablofelice.carreraDePods.events.Event;
 import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.utils.CrearAntena;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.Duration;
@@ -18,8 +19,6 @@ import org.apache.kafka.common.TopicPartition;
 import org.json.JSONObject;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
-
-;
 
 @Slf4j
 @Component
@@ -47,8 +46,9 @@ public class GetEventsService {
                     AntenaCreatedEvent eventoAntenaCreada = (AntenaCreatedEvent) evento;
                     // Convertir los campos de AntenaCreatedEvent a los campos de AntenaInDTO, además filtrar solo las lecturas q
                     for (AntenaInDTO dto : eventoAntenaCreada.getData()) {
-
-                        if (pod.equals(dto.getPod())) {
+                        //Se quitan espacios en blanco y se compara en minúscula
+                        //if (pod.trim().toLowerCase().equals(dto.getPod().trim().toLowerCase())) 
+                        if (pod.replaceAll("\\s", "").toLowerCase().equals(dto.getPod().replaceAll("\\s", "").toLowerCase())) {
                             AntenaInDTO eventoAntena = new AntenaInDTO();
                             eventoAntena.setTimedate(dto.getTimedate());
                             eventoAntena.setName(dto.getName());
@@ -82,7 +82,9 @@ public class GetEventsService {
                     AntenaCreatedEvent eventoAntenaCreada = (AntenaCreatedEvent) evento;
                     // Convertir los campos de AntenaCreatedEvent a los campos de AntenaInDTO, además filtrar solo las lecturas q
                     for (AntenaInDTO dto : eventoAntenaCreada.getData()) {
-                        if (pod.equals(dto.getName())) {
+                        //Se quitan espacios en blanco y se compara en minúscula
+                        //if (pod.replaceAll("\\s", "").toLowerCase().equals(dto.getPod().replaceAll("\\s", "").toLowerCase())) {
+                        if (pod.trim().toLowerCase().equals(dto.getPod().trim().toLowerCase())) {
                             AntenaInDTO eventoAntena = new AntenaInDTO();
                             eventoAntena.setTimedate(dto.getTimedate());
                             eventoAntena.setName(dto.getName());
@@ -99,44 +101,50 @@ public class GetEventsService {
     }
 
     // Filtrar los ultimo eventos encontrados (que corresponde con el nombre del POD) y seleccionar en una lista solo aquellos que tengan diferencia de "X" miliseg.
+    //Además solo
     public List<AntenaInDTO> filtrar(List<AntenaInDTO> eventos) {
-        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&& PRUEBAS PRUEBAS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
-        String ultimoRegistro;
-        List<AntenaInDTO> eventosEnviar = new ArrayList<>();
+        String primerRegistro;
+        List<AntenaInDTO> eventosFiltrar = new ArrayList<>();
         if (!eventos.isEmpty()) {
+            // Para ordenar de más reciente a mas antiguo
+            Collections.sort(eventos, (a1, a2) -> a2.getTimedate().compareTo(a1.getTimedate()));
             //Se lee el ulltimo registro de la lista y se lo asigna con el formato strign
-            ultimoRegistro = eventos.get(eventos.size() - 1).getTimedate();
-            System.out.println("ultimoRegistro = " + ultimoRegistro);
+            primerRegistro = eventos.get(0).getTimedate();
             //se establece una variable para el parseo
             SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
             try {
                 //se convierte la variable a tipo Date
-                Date fechaUltimoRegistro = sdf.parse(ultimoRegistro);
-                System.out.println("fechaUltimoRegistro = " + fechaUltimoRegistro);
+                Date fechaUltimoRegistro = sdf.parse(primerRegistro);
                 for (AntenaInDTO dto : eventos) {
-                    System.out.println("####### COMPARANDO ######");
                     AntenaInDTO eventoAntena = new AntenaInDTO();
                     Date fechaEvento = sdf.parse(dto.getTimedate());
                     //Se compara para filtrar aquiellos con diferencia de 1 segundo
-                    System.out.println("fechaUltimoRegistro.getTime() = " + fechaUltimoRegistro.getTime());
-                    System.out.println("fechaEvento.getTime() = " + fechaEvento.getTime());
                     long diferenciaMilis = Math.abs(fechaUltimoRegistro.getTime() - fechaEvento.getTime());
-                    System.out.println("diferenciaMilis = " + diferenciaMilis);
                     if (diferenciaMilis <= 1000) {
                         eventoAntena.setTimedate(dto.getTimedate());
                         eventoAntena.setName(dto.getName());
                         eventoAntena.setPod(dto.getPod());
                         eventoAntena.setDistance(dto.getDistance());
                         eventoAntena.setMetrics(dto.getMetrics());
-                        eventosEnviar.add(eventoAntena);
+                        eventosFiltrar.add(eventoAntena);
                     }
-                    System.out.println("#######  FIN COMPARANDO ######");
                 }
             } catch (ParseException e) {
-                e.printStackTrace();
+                System.out.println("e = " + e);
             }
         }
-        System.out.println("&&&&&&&&&&&&&&&&&&&&&&&&&&& FIN FIN  PRUEBAS PRUEBAS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        List<String> nombreAntenas;
+        nombreAntenas = CrearAntena.listaDeNombres;
+        //Eliminar de elementos de la lista si es que ya hay una antena con el mismo nombre con una lectura cargada
+        List<AntenaInDTO> eventosEnviar = new ArrayList<>();
+        for (String nombreAntena : nombreAntenas) {
+            for (AntenaInDTO evento : eventosFiltrar) {
+                if (evento.getName().equals(nombreAntena)) {
+                    eventosEnviar.add(evento);
+                    break;
+                }
+            }
+        }
 
         return eventosEnviar;
 
