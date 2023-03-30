@@ -61,7 +61,7 @@ public class AntenaService {
             listaDistancias.add(new DistanciaAntena(antena.getName(), antena.getDistance().floatValue()));
         }
         MessageLocationService coor = new MessageLocationService(ListaAntenas);
-        float[] resultX_Y = coor.getLocation2(listaDistancias);
+        float[] resultX_Y = coor.getLocation(listaDistancias);
         if (resultX_Y == null) {
             return new ResponseEntity<>("RESPONSE CODE: 404 (Datos insuficientes)", HttpStatus.NOT_FOUND);
         }
@@ -78,16 +78,12 @@ public class AntenaService {
         Map<String, Object> posicion = new HashMap<>();
         posicion.put("x", resultX_Y[0]);
         posicion.put("y", resultX_Y[1]);
-
         Map<String, Object> response = new HashMap<>();
         response.put("pod", nombrePod);
         response.put("position", posicion);
         //Response en formato String
         String metricsString = String.join(",", metricasFinales);
-        response.put("metrics", metricsString);
-        //Response como Array
-        //response.put("metrics", metricasFinales);
-        
+        response.put("metrics", metricsString);        
         this.saveDB(antenas);        
         this.subirEventsService.subirPodHealth(antenas);
         return new ResponseEntity<>(response, HttpStatus.OK);

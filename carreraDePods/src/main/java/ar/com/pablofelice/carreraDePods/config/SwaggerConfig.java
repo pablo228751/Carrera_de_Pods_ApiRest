@@ -46,6 +46,11 @@ public class SwaggerConfig {
             "    }\n" +
             "  ]\n" +
             "}";
+    public static final String ejemploBodyPodhealthSplit = "{\n" +
+            "  \"pod\": \"Anakin Skywalker\",\n" +
+            "  \"distance\": 100.0,\n" +
+            "  \"message\": [\"590C\", \"1MWh\", \"110C\", \"60%\"]\n" +
+            "}";
 }
     
 

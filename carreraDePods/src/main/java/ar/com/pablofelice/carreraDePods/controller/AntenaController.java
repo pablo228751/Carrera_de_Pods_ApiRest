@@ -30,7 +30,7 @@ public class AntenaController {
             description = "Ejemplo de cuerpo de solicitud",
             required = true,
             content = @Content(mediaType = "application/json",
-                    examples = @ExampleObject(value = SwaggerConfig.ejemploBodyPodhealth, name = "ejemplo"))
+                    examples = @ExampleObject(value = SwaggerConfig.ejemploBodyPodhealth, name = "/podhealth/"))
     )
     public ResponseEntity<?> datosAntenas(@RequestBody Map<String, List<AntenaInDTO>> body) {
         List<AntenaInDTO> antenas = body.get("antenas");

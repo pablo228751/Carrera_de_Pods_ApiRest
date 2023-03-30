@@ -16,7 +16,6 @@ import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.common.TopicPartition;
-import org.json.JSONObject;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.stereotype.Component;
 
@@ -42,7 +41,6 @@ public class GetEventsService {
             for (ConsumerRecord<String, Event<?>> registro : registros) {
                 Event<?> evento = registro.value();
                 if (evento instanceof AntenaCreatedEvent) {
-                    //System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% INICIO %%%%%%%%%%%%%%%%%%%%%%%%%%%");
                     AntenaCreatedEvent eventoAntenaCreada = (AntenaCreatedEvent) evento;
                     // Convertir los campos de AntenaCreatedEvent a los campos de AntenaInDTO, además filtrar solo las lecturas q
                     for (AntenaInDTO dto : eventoAntenaCreada.getData()) {
@@ -58,48 +56,11 @@ public class GetEventsService {
                             eventos.add(eventoAntena);
                         }
                     }
-                    //System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%% FIN %%%%%%%%%%%%%%%%%%%%%%%%%%%");
                 }
             }
         }
         return filtrar(eventos);
     }
-
-    public List<AntenaInDTO> getNombreBodyJson(String body) {
-        List<AntenaInDTO> eventos = new ArrayList<>();
-        JSONObject requestBody = new JSONObject(body);
-        String pod = requestBody.getString("pod");
-        try (Consumer<String, Event<?>> consumidor = consumerFactory.createConsumer()) {
-            TopicPartition particionTopico = new TopicPartition("podhealth", 0);
-            consumidor.assign(Collections.singletonList(particionTopico));
-            long finOffset = consumidor.endOffsets(Collections.singletonList(particionTopico)).get(particionTopico);
-            long inicioOffset = Math.max(0, finOffset - 10);
-            consumidor.seek(particionTopico, inicioOffset);
-            ConsumerRecords<String, Event<?>> registros = consumidor.poll(Duration.ofSeconds(1));
-            for (ConsumerRecord<String, Event<?>> registro : registros) {
-                Event<?> evento = registro.value();
-                if (evento instanceof AntenaCreatedEvent) {
-                    AntenaCreatedEvent eventoAntenaCreada = (AntenaCreatedEvent) evento;
-                    // Convertir los campos de AntenaCreatedEvent a los campos de AntenaInDTO, además filtrar solo las lecturas q
-                    for (AntenaInDTO dto : eventoAntenaCreada.getData()) {
-                        //Se quitan espacios en blanco y se compara en minúscula
-                        //if (pod.replaceAll("\\s", "").toLowerCase().equals(dto.getPod().replaceAll("\\s", "").toLowerCase())) {
-                        if (pod.trim().toLowerCase().equals(dto.getPod().trim().toLowerCase())) {
-                            AntenaInDTO eventoAntena = new AntenaInDTO();
-                            eventoAntena.setTimedate(dto.getTimedate());
-                            eventoAntena.setName(dto.getName());
-                            eventoAntena.setPod(dto.getPod());
-                            eventoAntena.setDistance(dto.getDistance());
-                            eventoAntena.setMetrics(dto.getMetrics());
-                            eventos.add(eventoAntena);
-                        }
-                    }
-                }
-            }
-        }
-        return eventos;
-    }
-
     // Filtrar los ultimo eventos encontrados (que corresponde con el nombre del POD) y seleccionar en una lista solo aquellos que tengan diferencia de "X" miliseg.
     //Además solo
     public List<AntenaInDTO> filtrar(List<AntenaInDTO> eventos) {
@@ -118,9 +79,9 @@ public class GetEventsService {
                 for (AntenaInDTO dto : eventos) {
                     AntenaInDTO eventoAntena = new AntenaInDTO();
                     Date fechaEvento = sdf.parse(dto.getTimedate());
-                    //Se compara para filtrar aquiellos con diferencia de 1 segundo
+                    //Se compara para filtrar aquiellos con diferencia de 1 segundo (Para pruebas esta seteado en 60 segundos)
                     long diferenciaMilis = Math.abs(fechaUltimoRegistro.getTime() - fechaEvento.getTime());
-                    if (diferenciaMilis <= 1000) {
+                    if (diferenciaMilis <= 60000) {
                         eventoAntena.setTimedate(dto.getTimedate());
                         eventoAntena.setName(dto.getName());
                         eventoAntena.setPod(dto.getPod());

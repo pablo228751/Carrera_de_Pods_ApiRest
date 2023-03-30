@@ -23,18 +23,24 @@ public class SubirEventsService {
     public SubirEventsService(ProducerFactory<String, Event<?>> producer) {
         this.producer = new KafkaTemplate<>(producer);
     }
-    
+
     @Value("${topic.podhealth.name:podhealth}")
     private String topicPodHealth;
 
     public void subirPodHealth(List<AntenaInDTO> antenas) {
-        AntenaCreatedEvent enviarAKafka = new AntenaCreatedEvent();
-        enviarAKafka.setData(antenas);
+        AntenaCreatedEvent enviarAKafka = new AntenaCreatedEvent(antenas);
         enviarAKafka.setId(UUID.randomUUID().toString());
         enviarAKafka.setDate(new Date());
 
         this.producer.send(topicPodHealth, enviarAKafka);
+    }
 
+    public void subirPodHealth(AntenaInDTO antenas) {
+        AntenaCreatedEvent enviarAKafka = new AntenaCreatedEvent(antenas);
+        enviarAKafka.setId(UUID.randomUUID().toString());
+        enviarAKafka.setDate(new Date());
+
+        this.producer.send(topicPodHealth, enviarAKafka);
     }
 
 }
