@@ -21,45 +21,47 @@ public class AntenaService {
 
     private final AntenaRepository antenaRepository;
     private final IMapper<AntenaInDTO, Antena> antenaMapper;
-    private final SubirEventsService subirEventsService;
+    private final SubirEventsService subirEventsService;    
+    private List<CrearAntena> listaAntenas = new ArrayList<>();
+    private static boolean antenasFijas;
+
     @Autowired
     public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, SubirEventsService subirEventsService) {
         this.antenaRepository = antenaRepository;
         this.antenaMapper = antenaMapper;
-        this.subirEventsService = subirEventsService;        
-    }  
+        this.subirEventsService = subirEventsService;
+    }
+
     // Guardar datos en la base
     public void saveDB(List<AntenaInDTO> antenaInDTOS) {
         List<Antena> antenas = antenaInDTOS.stream()
                 .map(antenaMapper::mapToEntity)
                 .collect(Collectors.toList());
         antenaRepository.saveAll(antenas);
-    }   
-
+    }
+    
+    //Procesa Coordenadas y Métricas
     public ResponseEntity<?> datosAntena(List<AntenaInDTO> antenas) {
         String nombrePod = antenas.get(0).getPod();
-
-        //System.out.println("************************** PROBANDO COORDENADAS ************************************");
-        List<CrearAntena> ListaAntenas = new ArrayList<CrearAntena>();
-        ListaAntenas.add(new CrearAntena("antena0", -500, -200));
-        ListaAntenas.add(new CrearAntena("antena1", 100, -100));
-        ListaAntenas.add(new CrearAntena("antena2", 500, 100));
-        //Devinir en la variable statica la cantidad de antenas
-        CrearAntena.cantDeAntenasDisponibles=ListaAntenas.size();
-        CrearAntena.setListaDeNombres(ListaAntenas);
-        System.out.println("CrearAntena.cantDeAntenasDisponibles = " + CrearAntena.cantDeAntenasDisponibles);
+        //Crear las antenas con valores Harcodeados en la clase
+        if (!this.antenasFijas) {
+            CrearAntena ant = new CrearAntena();
+            this.listaAntenas = ant.antenasFijas(listaAntenas);
+            CrearAntena.cantDeAntenasDisponibles = this.listaAntenas.size();
+            CrearAntena.setListaDeNombres(this.listaAntenas);
+            this.antenasFijas = true;
+        }
         //ListaAntenas.add(new CrearAntena("Antena4", 800, 100));
-        List<DistanciaAntena> listaDistancias = new ArrayList<DistanciaAntena>();
+        List<DistanciaAntena> listaDistancias = new ArrayList<>();
         for (AntenaInDTO antena : antenas) {
             listaDistancias.add(new DistanciaAntena(antena.getName(), antena.getDistance().floatValue()));
         }
-        MessageLocationService coor = new MessageLocationService(ListaAntenas);
+        MessageLocationService coor = new MessageLocationService(this.listaAntenas);
         float[] resultX_Y = coor.getLocation(listaDistancias);
         if (resultX_Y == null) {
             return new ResponseEntity<>("RESPONSE CODE: 404 (Datos insuficientes)", HttpStatus.NOT_FOUND);
         }
         //System.out.println("***************************        FIN                 *****************************");
-
         List<String> metricasFinales = coor.getMessage(antenas);
         //Si MetricaFinal quedó  Vacía devuelve Error 404
         for (int i = 0; i < metricasFinales.size(); i++) {
@@ -67,7 +69,6 @@ public class AntenaService {
                 return new ResponseEntity<>("RESPONSE CODE: 404", HttpStatus.NOT_FOUND);
             }
         }
-
         Map<String, Object> posicion = new HashMap<>();
         posicion.put("x", resultX_Y[0]);
         posicion.put("y", resultX_Y[1]);
@@ -76,8 +77,8 @@ public class AntenaService {
         response.put("position", posicion);
         //Response en formato String
         String metricsString = String.join(",", metricasFinales);
-        response.put("metrics", metricsString);        
-        this.saveDB(antenas);        
+        response.put("metrics", metricsString);
+        this.saveDB(antenas);
         this.subirEventsService.subirPodHealth(antenas);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

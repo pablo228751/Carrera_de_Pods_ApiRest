@@ -61,8 +61,7 @@ public class GetEventsService {
         return filtrar(eventos);
     }
 
-    // Filtrar los ultimo eventos encontrados (que corresponde con el nombre del POD) y seleccionar en una lista solo aquellos que tengan diferencia de "X" miliseg.
-    //Además solo
+    // Filtrar los ultimos eventos encontrados (que corresponde con el nombre del POD) y seleccionar en una lista solo aquellos que tengan diferencia de "X" miliseg.    
     public List<AntenaInDTO> filtrar(List<AntenaInDTO> eventos) {
         String primerRegistro;
         List<AntenaInDTO> eventosFiltrar = new ArrayList<>();

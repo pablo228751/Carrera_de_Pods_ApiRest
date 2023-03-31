@@ -11,12 +11,26 @@ public class CrearAntena {
     private float[] coordenadas = new float[2];
     public static int cantDeAntenasDisponibles;
     public static List<String> listaDeNombres = new ArrayList<>();
+    
+    public CrearAntena(){
+        
+    }
 
     public CrearAntena(String nombre, float coordenadaX, float coordenadaY) {
         this.nombre = nombre;
         this.coordenadas[0] = coordenadaX;
         this.coordenadas[1] = coordenadaY;
-        
+
+    }
+
+    public List<CrearAntena> antenasFijas(List<CrearAntena> antenas) {
+        if (cantDeAntenasDisponibles <= 0) {
+            antenas.add(new CrearAntena("antena0", -500, -200));
+            antenas.add(new CrearAntena("antena1", 100, -100));
+            antenas.add(new CrearAntena("antena2", 500, 100));
+            return antenas;
+        }
+        return null;
     }
 
     public static void setListaDeNombres(List<CrearAntena> lista) {
@@ -41,16 +55,17 @@ public class CrearAntena {
                 }
             }
 
-        }else{
-            listaDeNombres=nombres;
+        } else {
+            listaDeNombres = nombres;
         }
         //Actualizar la cantidad de antenas actuales:
-        cantDeAntenasDisponibles= listaDeNombres.size();     
+        cantDeAntenasDisponibles = listaDeNombres.size();
 
     }
-    public void resetAntenas(){
-        listaDeNombres=null;
-        cantDeAntenasDisponibles=0;        
+
+    public void resetAntenas() {
+        listaDeNombres = null;
+        cantDeAntenasDisponibles = 0;
     }
 
 }
