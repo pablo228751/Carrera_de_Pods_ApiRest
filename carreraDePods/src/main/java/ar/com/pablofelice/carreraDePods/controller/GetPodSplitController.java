@@ -6,6 +6,7 @@ import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/podhealth_split")
+@CrossOrigin(origins = "*")
 public class GetPodSplitController {
 
     private final GetEventsService getEventsService;
@@ -24,7 +26,6 @@ public class GetPodSplitController {
         this.antenaService = antenaService;
     }
     
-
     @GetMapping("/{pod_name}")
     public ResponseEntity<String> getPodHealthSplit(@PathVariable("pod_name") String podName) {
         System.out.println("Antena seleccionada: " + podName);

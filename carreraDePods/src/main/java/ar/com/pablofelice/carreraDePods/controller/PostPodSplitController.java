@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/podhealth_split")
+@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class PostPodSplitController {
 
     private final SubirEventsService subirEventsService;
@@ -43,7 +45,8 @@ public class PostPodSplitController {
     public ResponseEntity<String> podHealthSplit(@PathVariable("antena_name") String antenaName,
             @RequestBody Map<String, Object> body) {
         String pod = (String) body.get("pod");
-        Double distance = (Double) body.get("distance");
+        Number distanceNumber = (Number) body.get("distance");
+        Double distance = distanceNumber.doubleValue();
         List<String> message = (List<String>) body.getOrDefault("message", body.get("metrics"));
         DatosAntenaInDto antena = new DatosAntenaInDto();
         antena.setName(antenaName);
