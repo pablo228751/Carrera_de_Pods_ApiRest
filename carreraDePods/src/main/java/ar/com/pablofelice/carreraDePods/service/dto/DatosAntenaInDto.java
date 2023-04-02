@@ -4,7 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class AntenaInDTO {
+public class DatosAntenaInDto {
 
     private String name;
     private String pod;
@@ -12,12 +12,12 @@ public class AntenaInDTO {
     private List<String> metrics;
     private String timedate;
 
-    public AntenaInDTO() {
+    public DatosAntenaInDto() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         this.timedate = sdf.format(new Date());
     }
 
-    public AntenaInDTO(String name, String pod, Double distance, List<String> metrics) {
+    public DatosAntenaInDto(String name, String pod, Double distance, List<String> metrics) {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
         this.name = name;
         this.pod = pod;

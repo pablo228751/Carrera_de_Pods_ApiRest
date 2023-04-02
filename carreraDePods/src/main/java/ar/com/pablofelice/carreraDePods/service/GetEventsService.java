@@ -1,7 +1,7 @@
 package ar.com.pablofelice.carreraDePods.service;
 
-import ar.com.pablofelice.carreraDePods.events.AntenaCreatedEvent;
-import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.events.DatosCrearEvento;
+import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import ar.com.pablofelice.carreraDePods.utils.CrearAntena;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -30,8 +30,8 @@ public class GetEventsService {
         this.consumerFactory = consumerFactory;
     }
 
-    public List<AntenaInDTO> getNombrePod(String pod) {
-        List<AntenaInDTO> eventos = new ArrayList<>();
+    public List<DatosAntenaInDto> getNombrePod(String pod) {
+        List<DatosAntenaInDto> eventos = new ArrayList<>();
         try (Consumer<String, String> consumidor = consumerFactory.createConsumer()) {
             TopicPartition particionTopico = new TopicPartition("podhealth", 0);
             consumidor.assign(Collections.singletonList(particionTopico));
@@ -42,10 +42,10 @@ public class GetEventsService {
             for (ConsumerRecord<String, String> registro : registros) {
                 System.out.println("Mensaje recibido: " + registro.value());
                 ObjectMapper objectMapper = new ObjectMapper();
-                AntenaCreatedEvent eventoAntenaCreada = objectMapper.readValue(registro.value(), AntenaCreatedEvent.class);
-                for (AntenaInDTO dto : eventoAntenaCreada.getData()) {
+                DatosCrearEvento eventoAntenaCreada = objectMapper.readValue(registro.value(), DatosCrearEvento.class);
+                for (DatosAntenaInDto dto : eventoAntenaCreada.getData()) {
                     if (pod.replaceAll("\\s", "").toLowerCase().equals(dto.getPod().replaceAll("\\s", "").toLowerCase())) {
-                        AntenaInDTO eventoAntena = new AntenaInDTO();
+                        DatosAntenaInDto eventoAntena = new DatosAntenaInDto();
                         eventoAntena.setTimedate(dto.getTimedate());
                         eventoAntena.setName(dto.getName());
                         eventoAntena.setPod(dto.getPod());
@@ -62,9 +62,9 @@ public class GetEventsService {
     }
 
     // Filtrar los ultimos eventos encontrados (que corresponde con el nombre del POD) y seleccionar en una lista solo aquellos que tengan diferencia de "X" miliseg.    
-    public List<AntenaInDTO> filtrar(List<AntenaInDTO> eventos) {
+    public List<DatosAntenaInDto> filtrar(List<DatosAntenaInDto> eventos) {
         String primerRegistro;
-        List<AntenaInDTO> eventosFiltrar = new ArrayList<>();
+        List<DatosAntenaInDto> eventosFiltrar = new ArrayList<>();
         if (!eventos.isEmpty()) {
             // Para ordenar de más reciente a mas antiguo
             Collections.sort(eventos, (a1, a2) -> a2.getTimedate().compareTo(a1.getTimedate()));
@@ -75,8 +75,8 @@ public class GetEventsService {
             try {
                 //se convierte la variable a tipo Date
                 Date fechaUltimoRegistro = sdf.parse(primerRegistro);
-                for (AntenaInDTO dto : eventos) {
-                    AntenaInDTO eventoAntena = new AntenaInDTO();
+                for (DatosAntenaInDto dto : eventos) {
+                    DatosAntenaInDto eventoAntena = new DatosAntenaInDto();
                     Date fechaEvento = sdf.parse(dto.getTimedate());
                     //Se compara para filtrar aquiellos con diferencia de 1 segundo (Para pruebas esta seteado en 2 segundos)
                     long diferenciaMilis = Math.abs(fechaUltimoRegistro.getTime() - fechaEvento.getTime());
@@ -96,9 +96,9 @@ public class GetEventsService {
         List<String> nombreAntenas;
         nombreAntenas = CrearAntena.listaDeNombres;
         //Eliminar de elementos de la lista si es que ya hay una antena con el mismo nombre con una lectura cargada
-        List<AntenaInDTO> eventosEnviar = new ArrayList<>();
+        List<DatosAntenaInDto> eventosEnviar = new ArrayList<>();
         for (String nombreAntena : nombreAntenas) {
-            for (AntenaInDTO evento : eventosFiltrar) {
+            for (DatosAntenaInDto evento : eventosFiltrar) {
                 if (evento.getName().equals(nombreAntena)) {
                     eventosEnviar.add(evento);
                     break;

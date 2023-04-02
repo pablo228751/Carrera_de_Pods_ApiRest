@@ -4,16 +4,16 @@
  */
 package ar.com.pablofelice.carreraDePods.mapper;
 
-import ar.com.pablofelice.carreraDePods.persistence.entity.Antena;
-import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.persistence.entity.DatosAntena;
+import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import org.springframework.stereotype.Component;
 
 @Component
-public class AntenaInDTOToAntena implements IMapper<AntenaInDTO, Antena> {
+public class AntenaInDTOToAntena implements IMapper<DatosAntenaInDto, DatosAntena> {
 
     @Override
-    public Antena mapToEntity(AntenaInDTO dto) {
-        Antena antena = new Antena();
+    public DatosAntena mapToEntity(DatosAntenaInDto dto) {
+        DatosAntena antena = new DatosAntena();
         antena.setName(dto.getName());
         antena.setPod(dto.getPod());
         antena.setDistance(dto.getDistance());
@@ -22,8 +22,8 @@ public class AntenaInDTOToAntena implements IMapper<AntenaInDTO, Antena> {
     }
 
     @Override
-    public AntenaInDTO mapToDTO(Antena entity) {
-        AntenaInDTO dto = new AntenaInDTO();
+    public DatosAntenaInDto mapToDTO(DatosAntena entity) {
+        DatosAntenaInDto dto = new DatosAntenaInDto();
         dto.setName(entity.getName());
         dto.setPod(entity.getPod());
         dto.setDistance(entity.getDistance());

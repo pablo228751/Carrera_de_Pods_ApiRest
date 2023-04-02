@@ -5,7 +5,7 @@
 package ar.com.pablofelice.carreraDePods.events;
 
 
-import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.List;
 import lombok.Data;
@@ -14,17 +14,17 @@ import java.util.Collections;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class AntenaCreatedEvent extends Event<List<AntenaInDTO>> {
+public class DatosCrearEvento extends Evento<List<DatosAntenaInDto>> {
     @JsonCreator
-    public AntenaCreatedEvent() {
+    public DatosCrearEvento() {
         super(Collections.emptyList());
     }
 
-    public AntenaCreatedEvent(AntenaInDTO antena) {
+    public DatosCrearEvento(DatosAntenaInDto antena) {
         super(Collections.singletonList(antena));
     }
 
-    public AntenaCreatedEvent(List<AntenaInDTO> antenas) {
+    public DatosCrearEvento(List<DatosAntenaInDto> antenas) {
         super(antenas);
     }
 }

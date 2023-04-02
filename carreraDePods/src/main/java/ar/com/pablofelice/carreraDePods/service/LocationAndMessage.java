@@ -1,13 +1,13 @@
 package ar.com.pablofelice.carreraDePods.service;
 
-import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import ar.com.pablofelice.carreraDePods.utils.CrearAntena;
 import ar.com.pablofelice.carreraDePods.utils.DistanciaAntena;
 import java.util.List;
 import lombok.Data;
 
 @Data
-public class MessageLocationService {
+public class LocationAndMessage {
 
     /*
     Se crean X cantidad de objetos antenas, según recibe el Contructor,
@@ -17,7 +17,7 @@ public class MessageLocationService {
     float[] coordenadas = new float[2];
     private final int cantAntenas;
 
-    public MessageLocationService(List<CrearAntena> antena) {
+    public LocationAndMessage(List<CrearAntena> antena) {
         this.antena = antena;
         this.cantAntenas = antena.size();
     }
@@ -46,7 +46,7 @@ public class MessageLocationService {
         x = Math.round(x * 100.0f) / 100.0f; // Redondear a dos decimales
         y = Math.round(y * 100.0f) / 100.0f;
 
-        //System.out.format("***MessageLocationService**** getLocation dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", x, y);
+        //System.out.format("***LocationAndMessage**** getLocation dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", x, y);
         this.coordenadas[0] = x;
         this.coordenadas[1] = y;
 
@@ -83,7 +83,7 @@ public class MessageLocationService {
 
         this.coordenadas[0] = Math.round(sumX / sumD * 100.0f) / 100.0f;
         this.coordenadas[1] = Math.round(sumY / sumD * 100.0f) / 100.0f;
-        //System.out.format("***MessageLocationService**** getLocation2 dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", this.coordenadas[0], this.coordenadas[1]);
+        //System.out.format("***LocationAndMessage**** getLocation2 dice: Las coordenadas del vehículo son: (%.2f, %.2f)\n", this.coordenadas[0], this.coordenadas[1]);
 
         return this.coordenadas;
     }
@@ -98,13 +98,13 @@ public class MessageLocationService {
         return sum + (distanciaArray.length - 2);
     }
 
-    public List<String> getMessage(List<AntenaInDTO> antenas) {
+    public List<String> getMessage(List<DatosAntenaInDto> antenas) {
         List<String> metricasFinales = antenas.get(0).getMetrics();
-        for (AntenaInDTO antena : antenas) {
+        for (DatosAntenaInDto antena : antenas) {
             //Completar Métricas Vacías
             for (int i = 0; i < metricasFinales.size(); i++) {
                 if (metricasFinales.get(i) == null || metricasFinales.get(i).isEmpty()) {
-                    for (AntenaInDTO otraAntena : antenas) {
+                    for (DatosAntenaInDto otraAntena : antenas) {
                         if (otraAntena.getMetrics().get(i) != null && !otraAntena.getMetrics().get(i).isEmpty()) {
                             metricasFinales.set(i, otraAntena.getMetrics().get(i));
                             break;

@@ -1,8 +1,8 @@
 package ar.com.pablofelice.carreraDePods.controller;
 
-import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import ar.com.pablofelice.carreraDePods.config.SwaggerConfig;
-import ar.com.pablofelice.carreraDePods.service.AntenaService;
+import ar.com.pablofelice.carreraDePods.service.DatosAntenaService;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.ExampleObject;
 import java.util.List;
@@ -16,12 +16,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @RestController
 @RequestMapping("/podhealth/")
-public class AntenaController {
+public class PostDatosController {
     
-    private final AntenaService antenaService;
+    private final DatosAntenaService antenaService;
 
     @Autowired
-    public AntenaController(AntenaService antenaService) {
+    public PostDatosController(DatosAntenaService antenaService) {
         this.antenaService = antenaService;
     }
 
@@ -32,8 +32,8 @@ public class AntenaController {
             content = @Content(mediaType = "application/json",
                     examples = @ExampleObject(value = SwaggerConfig.ejemploBodyPodhealth, name = "/podhealth/"))
     )
-    public ResponseEntity<?> datosAntenas(@RequestBody Map<String, List<AntenaInDTO>> body) {
-        List<AntenaInDTO> antenas = body.get("antenas");
-        return antenaService.datosAntena(antenas);
+    public ResponseEntity<?> podhealth(@RequestBody Map<String, List<DatosAntenaInDto>> body) {
+        List<DatosAntenaInDto> antenas = body.get("antenas");
+        return antenaService.datosAntena(antenas,true);
     }
 }

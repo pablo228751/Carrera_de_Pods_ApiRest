@@ -7,7 +7,7 @@ import lombok.Data;
 @Data
 @Entity
 @Table(name = "antena")
-public class Antena {
+public class DatosAntena {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,10 +17,10 @@ public class Antena {
     private Double distance;
     private List<String> metrics;
 
-    public Antena() {
+    public DatosAntena() {
     }
 
-    public Antena(String name, String pod, Double distance, List<String> metrics) {
+    public DatosAntena(String name, String pod, Double distance, List<String> metrics) {
         this.name = name;
         this.pod = pod;
         this.distance = distance;

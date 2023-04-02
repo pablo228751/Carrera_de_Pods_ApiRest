@@ -1,9 +1,9 @@
 package ar.com.pablofelice.carreraDePods.service;
 
 import ar.com.pablofelice.carreraDePods.mapper.IMapper;
-import ar.com.pablofelice.carreraDePods.persistence.entity.Antena;
+import ar.com.pablofelice.carreraDePods.persistence.entity.DatosAntena;
 import ar.com.pablofelice.carreraDePods.persistence.repository.AntenaRepository;
-import ar.com.pablofelice.carreraDePods.service.dto.AntenaInDTO;
+import ar.com.pablofelice.carreraDePods.service.dto.DatosAntenaInDto;
 import ar.com.pablofelice.carreraDePods.utils.CrearAntena;
 import ar.com.pablofelice.carreraDePods.utils.DistanciaAntena;
 import java.util.ArrayList;
@@ -17,31 +17,31 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-public class AntenaService {
+public class DatosAntenaService {
 
     private final AntenaRepository antenaRepository;
-    private final IMapper<AntenaInDTO, Antena> antenaMapper;
+    private final IMapper<DatosAntenaInDto, DatosAntena> antenaMapper;
     private final SubirEventsService subirEventsService;    
     private List<CrearAntena> listaAntenas = new ArrayList<>();
     private static boolean antenasFijas;
 
     @Autowired
-    public AntenaService(AntenaRepository antenaRepository, IMapper<AntenaInDTO, Antena> antenaMapper, SubirEventsService subirEventsService) {
+    public DatosAntenaService(AntenaRepository antenaRepository, IMapper<DatosAntenaInDto, DatosAntena> antenaMapper, SubirEventsService subirEventsService) {
         this.antenaRepository = antenaRepository;
         this.antenaMapper = antenaMapper;
         this.subirEventsService = subirEventsService;
     }
 
     // Guardar datos en la base
-    public void saveDB(List<AntenaInDTO> antenaInDTOS) {
-        List<Antena> antenas = antenaInDTOS.stream()
+    public void guardarDB(List<DatosAntenaInDto> antenaInDTOS) {
+        List<DatosAntena> antenas = antenaInDTOS.stream()
                 .map(antenaMapper::mapToEntity)
                 .collect(Collectors.toList());
         antenaRepository.saveAll(antenas);
     }
     
     //Procesa Coordenadas y Métricas
-    public ResponseEntity<?> datosAntena(List<AntenaInDTO> antenas) {
+    public ResponseEntity<?> datosAntena(List<DatosAntenaInDto> antenas, boolean subir) {
         String nombrePod = antenas.get(0).getPod();
         //Crear las antenas con valores Harcodeados en la clase
         if (!this.antenasFijas) {
@@ -53,10 +53,10 @@ public class AntenaService {
         }
         //ListaAntenas.add(new CrearAntena("Antena4", 800, 100));
         List<DistanciaAntena> listaDistancias = new ArrayList<>();
-        for (AntenaInDTO antena : antenas) {
+        for (DatosAntenaInDto antena : antenas) {
             listaDistancias.add(new DistanciaAntena(antena.getName(), antena.getDistance().floatValue()));
         }
-        MessageLocationService coor = new MessageLocationService(this.listaAntenas);
+        LocationAndMessage coor = new LocationAndMessage(this.listaAntenas);
         float[] resultX_Y = coor.getLocation(listaDistancias);
         if (resultX_Y == null) {
             return new ResponseEntity<>("RESPONSE CODE: 404 (Datos insuficientes)", HttpStatus.NOT_FOUND);
@@ -77,9 +77,11 @@ public class AntenaService {
         response.put("position", posicion);
         //Response en formato String
         String metricsString = String.join(",", metricasFinales);
-        response.put("metrics", metricsString);
-        this.saveDB(antenas);
-        this.subirEventsService.subirPodHealth(antenas);
+        response.put("metrics", metricsString);        
+        //this.guardarDB(antenas); ---> No se va a usaren el proyecto
+        if (subir){
+            this.subirEventsService.subirPodHealth(antenas);
+        }        
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }
